@@ -3,22 +3,22 @@
 		<link type="text/css" rel="stylesheet" href="style.css" />
 		<script type="text/javascript" src="popup.js"></script>
 	</head>
-	<body onload="initView();">
+	<body>
 
 		<ul id="popup_list">
 		</ul>
 
 		<ul id="command_list">
-			<li onclick="manageBars();">Manage bars</li>
-			<li onclick="showNameForm(); this.className += ' current';">New bar</li>	
+			<li id="manage">Manage bars</li>
+			<li id="newBar">New bar</li>	
 		</ul>
 
 		<div id="barNameDiv">
 			<form id="barNameForm" onsubmit="newBar();">
 				<label for="barName">Name:</label>
-				<input type="text" size="10" id="barName" onkeydown="catchEnterKey();"/>
-				<input type="button" value="Cancel" onclick="hidePopup();" />
-				<input type="button" value="OK" onclick="newBar();" />
+				<input type="text" size="10" id="barName"/>
+				<input type="button"  id="cancel" value="Cancel"/>
+				<input type="button" id="OK" value="OK"/>
 			</form>
 		</div>
 

@@ -23,6 +23,7 @@
  * forwarding it to the background page and vice versa.
  * 
  * @author Zoee Silcock
+ * @author Vishal Ithape
  **/ 
 
 /**
@@ -31,7 +32,7 @@
  * loadData() method uses asynchronous methods. We pass the callback
  * as an argument to loadData(). 
  * 
- * This function is called from the onload event of the popup body.
+ * This function is called on event 'DOMContentLoaded'.
  **/
 function initView() {
 	// Request the data from the background page.
@@ -45,23 +46,21 @@ function initView() {
 function populate(bookmarkBars, currentBB) {
 	// Build an array with the new list items.
 	var ulItems = [];
+	
+        var list = document.getElementById("popup_list");
 	bookmarkBars.forEach(function(item) {
-		if(item.title == currentBB) {
-			ulItems.push('<li class="current">' + item.title + '</li>');
+	  var li=document.createElement('li');
+	   if(item.title == currentBB) {
+	    	  li.setAttribute('class','current');
+		  li.innerHTML=item.title;
 			} else {
-			ulItems.push('<li onclick="selectBookmarkBar(\'' + item.title + '\')">' + item.title + '</li>');
+			  li.setAttribute('id',item.title);
+		          li.innerHTML=item.title;
+			  li.addEventListener('click',function(){selectBookmarkBar(item.title)});
 		}
+	list.appendChild(li);
 	});
-
-	var list = document.getElementById("popup_list");
-	list.innerHTML = ulItems.join("");
-}
-
-/**
- * Handles the new bookmark bar form by taking the name and calling the 
- * createBar() method on the background page. The result of the call will
- * be reported back to the callback, in this case the barCreated() method. 
- **/
+	
 function newBar() {
 	var name = document.getElementById("barName").value;
 
@@ -124,6 +123,7 @@ function catchEnterKey() {
  * Tells the background page to switch to the specified bookmark bar.
  **/
 function selectBookmarkBar(bar) {
+console.log("Inside Select method");
 	chrome.extension.getBackgroundPage().selectBar(bar);
 	hidePopup();
 }
@@ -134,7 +134,16 @@ function selectBookmarkBar(bar) {
  * directly to the BookmarkBars folder in the future.
  **/
 function manageBars() {
+  //console.log("So this works");
 	chrome.tabs.create({
 		url: "chrome://bookmarks/"
 	});
 }
+document.addEventListener('DOMContentLoaded', function () {
+ 		document.getElementById("manage").addEventListener('click',manageBars);
+		document.getElementById("newBar").addEventListener('click',function(){showNameForm(); this.className += ' current';});
+		document.getElementById("OK").addEventListener('click',newBar);
+		document.getElementById("cancel").addEventListener('click',hidePopup);
+		document.getElementById("barName").addEventListener('keydown',catchEnterKey);
+  initView();
+});

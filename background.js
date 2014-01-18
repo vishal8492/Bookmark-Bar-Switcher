@@ -23,6 +23,7 @@
  * bookmarks back and forth.
  *
  * @author Zoee Silcock
+ * @author Vishal Ithape
  **/
 
 /**
@@ -117,24 +118,25 @@ function setupEventListeners() {
 function loadData(populateView) {
 	// Clear the current data.
 	bookmarkBars = [];
-
 	// Get a list of items in the "BookmarkBars" folder and go through them.
+	if(bookmarkBarsId!=null){
 	chrome.bookmarks.getChildren(bookmarkBarsId, function(items) {
-		items.forEach(function(item) {
+			items.forEach(function(item) {
 			if(item.title.indexOf("CurrentBB:") != -1) {
 				// This is the CurrentBB:* bookmark, extract the name.
 				currentBB = item.title.split(":")[1];
 				currentBarId = item.id;
-			} else if(item.url == null) {
+				} else if(item.url == null) {
 				// This is a bookmark bar storage folder, add it to the list of bars.
 				bookmarkBars.push(item);
 			}
+			
 		});
 
 		if(currentBarId == null) {
 			// The CurrentBB:* bookmark wasn't found, lets create it.
 			chrome.bookmarks.create({parentId: bookmarkBarsId,
-				title: "CurrentBB:" + currentBB, url: "http://zoeetrope.com/en/bbs"}, 
+				title: "CurrentBB:" + currentBB, url: "http://www.google.com/"}, 
 				function(result) {
 				currentBarId = result.id;
 
@@ -146,6 +148,7 @@ function loadData(populateView) {
 			populateView(bookmarkBars, currentBB);
 		}
 	});
+	}
 }
 
 /**
@@ -170,6 +173,7 @@ function setCurrentBB(name) {
  * update the meta data before the rest of the function is done.
  **/
 function selectBar(name) {
+console.log("Reached select Bar"+name);
 	if(name != currentBB) {
 		// Store the name of the current bar since setMetaData will change it
 		// before we need it when moving out the old bookmarks.
@@ -177,14 +181,14 @@ function selectBar(name) {
 
 		chrome.bookmarks.getChildren(bookmarkBarsId, function(storageFolders) {
 			storageFolders.forEach(function(storageFolder) {
-				if(storageFolder.title == current) {
+			   	if(storageFolder.title == current) {
 					// Move every bookmark in the bar to it's storage folder.
 					moveChildrenToFolder(bookmarkBarId, storageFolder.id);
 				}
 			});
 
 			storageFolders.forEach(function(storageFolder) {
-				if(storageFolder.title == name) {
+			   	if(storageFolder.title == name) {
 					// Move every bookmark in the storage folder to the bookmark bar.
 					moveChildrenToFolder(storageFolder.id, bookmarkBarId);
 				}
@@ -365,3 +369,6 @@ function log(message) {
 		console.log(message);
 	}
 }
+document.addEventListener('DOMContentLoaded', function () {
+initialize();
+});
